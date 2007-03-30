@@ -12,7 +12,9 @@
 package org.eclipse.mylar.core.net;
 
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.URL;
 import java.net.Proxy.Type;
 
 import org.apache.commons.httpclient.Credentials;
@@ -22,10 +24,16 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 
 /**
  * @author Mik Kersten
  * @author Steffen Pingel
+ * @author Leo Dos Santos - getFaviconForUrl
  */
 public class WebClientUtil {
 
@@ -104,8 +112,7 @@ public class WebClientUtil {
 			return repositoryUrl.substring(requestPath);
 		}
 	}
-	
-	@SuppressWarnings("deprecation")
+
 	public static void setupHttpClient(HttpClient client, Proxy proxySettings, String repositoryUrl, String user,
 			String password) {
 
@@ -113,22 +120,19 @@ public class WebClientUtil {
 		// commons-logging-api jars
 		// System.setProperty("org.apache.commons.logging.Log",
 		// "org.apache.commons.logging.impl.SimpleLog");
-		// System.setProperty("org.apache.commons.logging.simplelog.showdatetime",
-		// "true");
-		// System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire",
-		// "debug");
-		// System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header",
-		// "debug");
-		// System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient",
-		// "debug");
+//		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header", "debug");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
+//		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient.HttpConnection",	"trace");
 
 		client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
 		client.getHttpConnectionManager().getParams().setSoTimeout(WebClientUtil.SOCKET_TIMEOUT);
 		client.getHttpConnectionManager().getParams().setConnectionTimeout(WebClientUtil.CONNNECT_TIMEOUT);
 
 		if (proxySettings != null && !Proxy.NO_PROXY.equals(proxySettings)
-				&& !WebClientUtil.repositoryUsesHttps(repositoryUrl)
-				&& proxySettings.address() instanceof InetSocketAddress) {
+		/* && !WebClientUtil.repositoryUsesHttps(repositoryUrl) */
+		&& proxySettings.address() instanceof InetSocketAddress) {
 			InetSocketAddress address = (InetSocketAddress) proxySettings.address();
 			client.getHostConfiguration().setProxy(WebClientUtil.getDomain(address.getHostName()), address.getPort());
 			if (proxySettings instanceof AuthenticatedProxy) {
@@ -144,10 +148,10 @@ public class WebClientUtil {
 					.getPort(repositoryUrl), AuthScope.ANY_REALM);
 			client.getState().setCredentials(authScope, new UsernamePasswordCredentials(user, password));
 		}
-		
-		if (WebClientUtil.repositoryUsesHttps(repositoryUrl)) {			
-			Protocol acceptAllSsl = new Protocol("https", new SslProtocolSocketFactory(proxySettings), WebClientUtil
-					.getPort(repositoryUrl));
+
+		if (WebClientUtil.repositoryUsesHttps(repositoryUrl)) {
+			Protocol acceptAllSsl = new Protocol("https", (ProtocolSocketFactory) SslProtocolSocketFactory
+					.getInstance(), WebClientUtil.getPort(repositoryUrl));
 			client.getHostConfiguration().setHost(WebClientUtil.getDomain(repositoryUrl),
 					WebClientUtil.getPort(repositoryUrl), acceptAllSsl);
 			Protocol.registerProtocol("https", acceptAllSsl);
@@ -161,8 +165,8 @@ public class WebClientUtil {
 		String username = authProxy.getUserName();
 		int i = username.indexOf("\\");
 		if (i > 0 && i < username.length() - 1) {
-			return new NTCredentials(username.substring(i + 1), authProxy.getPassword(), address.getHostName(), username
-					.substring(0, i));
+			return new NTCredentials(username.substring(i + 1), authProxy.getPassword(), address.getHostName(),
+					username.substring(0, i));
 		} else {
 			return new UsernamePasswordCredentials(username, authProxy.getPassword());
 		}
@@ -183,94 +187,33 @@ public class WebClientUtil {
 		}
 		return Proxy.NO_PROXY;
 	}
+	
+	/**
+	 * @param repositoryUrl	The URL of the web site including protocol.
+	 * 				E.g. <code>http://foo.bar</code> or <code>https://foo.bar/baz</code>
+	 * @return a 16*16 favicon, or null if no favicon found
+	 * @throws MalformedURLException 
+	 */
+	public static Image getFaviconForUrl(String repositoryUrl) throws MalformedURLException {
+		URL url = new URL(repositoryUrl);
+		
+		String host = url.getHost();
+		String protocol = url.getProtocol();
+		String favString = protocol + "://" + host + "/favicon.ico";
+		
+		URL favUrl = new URL(favString);
+		try {
+			ImageDescriptor desc = ImageDescriptor.createFromURL(favUrl);
+			if (desc.getImageData() != null) {
+				if ((desc.getImageData().width != 16) && (desc.getImageData().height != 16)) {
+					ImageData data = desc.getImageData().scaledTo(16, 16);
+					return ImageDescriptor.createFromImageData(data).createImage(false);
+				}
+			}
+			return ImageDescriptor.createFromURL(favUrl).createImage(false);
+		} catch (SWTException e) {
+			return null;
+		}
+	}
 
 }
-
-// /**
-// * Returns an opened HttpURLConnection. If the proxy fails a direct
-// * connection is attempted.
-// */
-// public static HttpURLConnection openUrlConnection(URL url, Proxy proxy,
-// boolean useTls, String htAuthUser,
-// String htAuthPass) throws IOException, KeyManagementException,
-// GeneralSecurityException {
-//
-// if (proxy == null) {
-// proxy = Proxy.NO_PROXY;
-// }
-//
-// HttpURLConnection remoteConnection = getUrlConnection(url, proxy, useTls,
-// htAuthUser, htAuthPass);
-// try {
-// remoteConnection = openConnection(url, proxy);
-// } catch (ConnectException e) {
-// remoteConnection = openConnection(url, Proxy.NO_PROXY);
-// }
-//
-// return remoteConnection;
-// }
-
-// /**
-// * Returns connection that has yet to be opened (can still set connection
-// * parameters). Catch ConnectException and retry with Proxy.NO_PROXY if
-// * necessary.
-// */
-// public static HttpURLConnection getUrlConnection(URL url, Proxy proxy,
-// boolean useTls, String htAuthUser,
-// String htAuthPass) throws IOException, KeyManagementException,
-// GeneralSecurityException {
-// SSLContext ctx;
-// if (useTls) {
-// ctx = SSLContext.getInstance("TLS");
-// } else {
-// ctx = SSLContext.getInstance("SSL");
-// }
-//
-// javax.net.ssl.TrustManager[] tm = new javax.net.ssl.TrustManager[] { new
-// TrustAllTrustManager() };
-// ctx.init(null, tm, null);
-// HttpsURLConnection.setDefaultSSLSocketFactory(ctx.getSocketFactory());
-//
-// if (proxy == null) {
-// proxy = Proxy.NO_PROXY;
-// }
-//
-// URLConnection connection = url.openConnection(proxy);
-//
-// // Add http basic authentication credentials if supplied
-// // Ref: http://www.javaworld.com/javaworld/javatips/jw-javatip47.html
-// if (htAuthUser != null && htAuthPass != null && !htAuthUser.equals("")) {
-// String authenticationString = htAuthUser + ":" + htAuthPass;
-// String encodedAuthenticationString = null;
-// try {
-// sun.misc.BASE64Encoder encoder = (sun.misc.BASE64Encoder)
-// Class.forName("sun.misc.BASE64Encoder")
-// .newInstance();
-// encodedAuthenticationString =
-// encoder.encode(authenticationString.getBytes());
-// connection.setRequestProperty("Authorization", "Basic " +
-// encodedAuthenticationString);
-// } catch (Exception ex) {
-// // ignore, encoder not available
-// }
-// }
-//
-// if (connection == null || !(connection instanceof HttpURLConnection)) {
-// throw new MalformedURLException();
-// }
-// return (HttpURLConnection) connection;
-// }
-
-// private static HttpURLConnection openConnection(URL url, Proxy proxy)
-// throws IOException {
-// URLConnection connection = url.openConnection(proxy);
-// if (connection == null || !(connection instanceof HttpURLConnection)) {
-// throw new MalformedURLException();
-// }
-// HttpURLConnection remoteConnection = (HttpURLConnection) connection;
-// remoteConnection.addRequestProperty("Accept-Encoding", ENCODING_GZIP);
-// remoteConnection.setConnectTimeout(COM_TIME_OUT);
-// remoteConnection.setReadTimeout(COM_TIME_OUT);
-// remoteConnection.connect();
-// return remoteConnection;
-// }
