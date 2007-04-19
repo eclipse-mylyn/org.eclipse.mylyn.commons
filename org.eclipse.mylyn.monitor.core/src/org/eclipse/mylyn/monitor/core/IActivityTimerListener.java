@@ -22,6 +22,7 @@ public interface IActivityTimerListener {
 	 */
 	public void fireActive(long start, long end);
 	
+	// TODO: Deprecated?
 	public void fireInactive();
 
 }

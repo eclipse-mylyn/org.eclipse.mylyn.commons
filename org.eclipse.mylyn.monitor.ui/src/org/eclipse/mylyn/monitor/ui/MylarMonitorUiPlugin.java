@@ -42,7 +42,7 @@ import org.osgi.framework.BundleContext;
  */
 public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
-	public static final int TIMEOUT_INACTIVITY_MILLIS = 1 * 60 * 1000;
+	public static final int TIMEOUT_INACTIVITY_MILLIS = 2 * 60 * 1000;
 
 	private int inactivityTimeout = TIMEOUT_INACTIVITY_MILLIS;
 
@@ -60,7 +60,7 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
 	private ActivityContextManager activityContextManager;
 
-	private AbstractUserActivityMonitor osActivityTimer = null;
+	private AbstractUserActivityTimer osActivityTimer = null;
 
 	protected Set<IPartListener> partListeners = new HashSet<IPartListener>();
 
@@ -132,14 +132,14 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
 					new MonitorUiExtensionPointReader().initExtensions();
 
-					AbstractUserActivityMonitor activityMonitor = null;
+					AbstractUserActivityTimer activityTimer = null;
 					if (osActivityTimer != null) {
-						activityMonitor = osActivityTimer;
+						activityTimer = osActivityTimer;
 					} else {
-						activityMonitor = new WorkbenchUserActivityMonitor();
+						activityTimer = new WorkbenchUserActivityTimer(TIMEOUT_INACTIVITY_MILLIS);
 					}
 
-					activityContextManager = new ActivityContextManager(TIMEOUT_INACTIVITY_MILLIS, activityMonitor);
+					activityContextManager = new ActivityContextManager(activityTimer);
 					activityContextManager.start();
 				} catch (Exception e) {
 					MylarStatusHandler.fail(e, "Mylar Monitor start failed", false);
@@ -169,6 +169,11 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
 	public ShellLifecycleListener getShellLifecycleListener() {
 		return shellLifecycleListener;
+	}
+
+	public void setInactivityTimeout(int millis) {
+		inactivityTimeout = millis;
+		activityContextManager.setTimeoutMillis(millis);
 	}
 
 	/**
@@ -303,8 +308,8 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 			try {
 				if (element.getAttribute(ELEMENT_CLASS) != null) {
 					Object activityTimer = element.createExecutableExtension(ELEMENT_CLASS);
-					if (activityTimer instanceof AbstractUserActivityMonitor) {
-						osActivityTimer = (AbstractUserActivityMonitor) activityTimer;
+					if (activityTimer instanceof AbstractUserActivityTimer) {
+						osActivityTimer = (AbstractUserActivityTimer) activityTimer;
 					}
 				}
 			} catch (CoreException throwable) {
