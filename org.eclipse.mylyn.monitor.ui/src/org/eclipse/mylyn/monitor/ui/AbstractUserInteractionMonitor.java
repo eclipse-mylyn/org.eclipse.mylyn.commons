@@ -68,15 +68,16 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 		if (selectedElement == null || selectedElement.equals(lastSelectedElement))
 			return null;
 		AbstractContextStructureBridge bridge = ContextCorePlugin.getDefault().getStructureBridge(selectedElement);
+		String handleIdentifier = bridge.getHandleIdentifier(selectedElement);
 		InteractionEvent selectionEvent;
 		if (bridge.getContentType() != null) {
 			selectionEvent = new InteractionEvent(InteractionEvent.Kind.SELECTION,
-					bridge.getContentType(), bridge.getHandleIdentifier(selectedElement), part.getSite().getId());
+					bridge.getContentType(), handleIdentifier, part.getSite().getId());
 		} else {
 			selectionEvent = new InteractionEvent(InteractionEvent.Kind.SELECTION,
 					null, null, part.getSite().getId());			
 		}
-		if (contributeToContext) {
+		if (handleIdentifier != null && contributeToContext) {
 			ContextCorePlugin.getContextManager().handleInteractionEvent(selectionEvent);
 		}
 		MylarMonitorUiPlugin.getDefault().notifyInteractionObserved(selectionEvent);
@@ -90,9 +91,10 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 		if (selectedElement == null)
 			return;
 		AbstractContextStructureBridge bridge = ContextCorePlugin.getDefault().getStructureBridge(selectedElement);
+		String handleIdentifier = bridge.getHandleIdentifier(selectedElement);
 		InteractionEvent editEvent = new InteractionEvent(InteractionEvent.Kind.EDIT, bridge.getContentType(),
-				bridge.getHandleIdentifier(selectedElement), part.getSite().getId());
-		if (contributeToContext) {
+				handleIdentifier, part.getSite().getId());
+		if (handleIdentifier != null && contributeToContext) {
 			ContextCorePlugin.getContextManager().handleInteractionEvent(editEvent);
 		}
 		MylarMonitorUiPlugin.getDefault().notifyInteractionObserved(editEvent);
@@ -104,9 +106,10 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 	protected void handleNavigation(IWorkbenchPart part, Object targetElement, String kind, boolean contributeToContext) {
 		AbstractContextStructureBridge adapter = ContextCorePlugin.getDefault().getStructureBridge(targetElement);
 		if (adapter.getContentType() != null) {
+			String handleIdentifier = adapter.getHandleIdentifier(targetElement);
 			InteractionEvent navigationEvent = new InteractionEvent(InteractionEvent.Kind.SELECTION, adapter
-					.getContentType(), adapter.getHandleIdentifier(targetElement), part.getSite().getId(), kind);
-			if (contributeToContext) {
+					.getContentType(), handleIdentifier, part.getSite().getId(), kind);
+			if (handleIdentifier != null && contributeToContext) {
 				ContextCorePlugin.getContextManager().handleInteractionEvent(navigationEvent);
 			}
 			MylarMonitorUiPlugin.getDefault().notifyInteractionObserved(navigationEvent);

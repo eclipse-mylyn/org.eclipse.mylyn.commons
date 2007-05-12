@@ -27,7 +27,6 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWTException;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 
 /**
@@ -73,7 +72,13 @@ public class WebClientUtil {
 		else
 			end = requestPath;
 
-		return Integer.parseInt(repositoryUrl.substring(colonPort + 1, end));
+		String port = repositoryUrl.substring(colonPort + 1, end);
+		
+		if(port.length() == 0){
+			return repositoryUsesHttps(repositoryUrl) ? HTTPS_PORT : HTTP_PORT;
+		}
+		
+		return Integer.parseInt(port);
 	}
 
 	public static String getDomain(String repositoryUrl) {
@@ -120,11 +125,16 @@ public class WebClientUtil {
 		// commons-logging-api jars
 		// System.setProperty("org.apache.commons.logging.Log",
 		// "org.apache.commons.logging.impl.SimpleLog");
-//		System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-//		System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
-//		System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header", "debug");
-//		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "debug");
-//		System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient.HttpConnection",	"trace");
+		// System.setProperty("org.apache.commons.logging.simplelog.showdatetime",
+		// "true");
+		// System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire",
+		// "debug");
+		// System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header",
+		// "debug");
+		// System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient",
+		// "debug");
+		// System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient.HttpConnection",
+		// "trace");
 
 		client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
 		client.getHttpConnectionManager().getParams().setSoTimeout(WebClientUtil.SOCKET_TIMEOUT);
@@ -187,30 +197,32 @@ public class WebClientUtil {
 		}
 		return Proxy.NO_PROXY;
 	}
-	
+
 	/**
-	 * @param repositoryUrl	The URL of the web site including protocol.
-	 * 				E.g. <code>http://foo.bar</code> or <code>https://foo.bar/baz</code>
+	 * @param repositoryUrl
+	 *            The URL of the web site including protocol. E.g.
+	 *            <code>http://foo.bar</code> or
+	 *            <code>https://foo.bar/baz</code>
 	 * @return a 16*16 favicon, or null if no favicon found
-	 * @throws MalformedURLException 
+	 * @throws MalformedURLException
 	 */
-	public static Image getFaviconForUrl(String repositoryUrl) throws MalformedURLException {
+	public static ImageDescriptor getFaviconForUrl(String repositoryUrl) throws MalformedURLException {
 		URL url = new URL(repositoryUrl);
-		
+
 		String host = url.getHost();
 		String protocol = url.getProtocol();
 		String favString = protocol + "://" + host + "/favicon.ico";
-		
+
 		URL favUrl = new URL(favString);
 		try {
 			ImageDescriptor desc = ImageDescriptor.createFromURL(favUrl);
-			if (desc.getImageData() != null) {
+			if (desc != null && desc.getImageData() != null) {
 				if ((desc.getImageData().width != 16) && (desc.getImageData().height != 16)) {
 					ImageData data = desc.getImageData().scaledTo(16, 16);
-					return ImageDescriptor.createFromImageData(data).createImage(false);
+					return ImageDescriptor.createFromImageData(data);
 				}
 			}
-			return ImageDescriptor.createFromURL(favUrl).createImage(false);
+			return ImageDescriptor.createFromURL(favUrl);
 		} catch (SWTException e) {
 			return null;
 		}

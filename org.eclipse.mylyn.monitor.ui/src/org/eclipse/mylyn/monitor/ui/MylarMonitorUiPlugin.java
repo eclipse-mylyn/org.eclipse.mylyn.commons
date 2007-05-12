@@ -42,7 +42,7 @@ import org.osgi.framework.BundleContext;
  */
 public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
-	public static final int TIMEOUT_INACTIVITY_MILLIS = 2 * 60 * 1000;
+	public static final int TIMEOUT_INACTIVITY_MILLIS = 1 * 60 * 1000;
 
 	private int inactivityTimeout = TIMEOUT_INACTIVITY_MILLIS;
 
@@ -60,7 +60,7 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
 	private ActivityContextManager activityContextManager;
 
-	private AbstractUserActivityTimer osActivityTimer = null;
+	private AbstractUserActivityMonitor osActivityTimer = null;
 
 	protected Set<IPartListener> partListeners = new HashSet<IPartListener>();
 
@@ -71,6 +71,8 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 	protected Set<ISelectionListener> postSelectionListeners = new HashSet<ISelectionListener>();
 
 	public static final String OBFUSCATED_LABEL = "[obfuscated]";
+	
+	private IWorkbenchWindow launchingWorkbenchWindow = null;
 
 	protected IWindowListener WINDOW_LISTENER = new IWindowListener() {
 		public void windowActivated(IWorkbenchWindow window) {
@@ -85,34 +87,12 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 			if (getWorkbench().isClosing()) {
 				return;
 			}
-			for (IPageListener listener : pageListeners) {
-				window.addPageListener(listener);
-			}
-			for (IPartListener listener : partListeners) {
-				window.getPartService().addPartListener(listener);
-			}
-			for (IPerspectiveListener listener : perspectiveListeners) {
-				window.addPerspectiveListener(listener);
-			}
-			for (ISelectionListener listener : postSelectionListeners) {
-				window.getSelectionService().addPostSelectionListener(listener);
-			}
+			addListenersToWindow(window);
 
 		}
 
 		public void windowClosed(IWorkbenchWindow window) {
-			for (IPageListener listener : pageListeners) {
-				window.removePageListener(listener);
-			}
-			for (IPartListener listener : partListeners) {
-				window.getPartService().removePartListener(listener);
-			}
-			for (IPerspectiveListener listener : perspectiveListeners) {
-				window.removePerspectiveListener(listener);
-			}
-			for (ISelectionListener listener : postSelectionListeners) {
-				window.getSelectionService().removePostSelectionListener(listener);
-			}
+			removeListenersFromWindow(window);
 		}
 	};
 
@@ -127,19 +107,21 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 			public void run() {
 				try {
 					getWorkbench().addWindowListener(WINDOW_LISTENER);
+					launchingWorkbenchWindow = getWorkbench().getActiveWorkbenchWindow();
+					addListenersToWindow(launchingWorkbenchWindow);
 					shellLifecycleListener = new ShellLifecycleListener(ContextCorePlugin.getContextManager());
 					getWorkbench().getActiveWorkbenchWindow().getShell().addShellListener(shellLifecycleListener);
 
 					new MonitorUiExtensionPointReader().initExtensions();
 
-					AbstractUserActivityTimer activityTimer = null;
+					AbstractUserActivityMonitor activityMonitor = null;
 					if (osActivityTimer != null) {
-						activityTimer = osActivityTimer;
+						activityMonitor = osActivityTimer;
 					} else {
-						activityTimer = new WorkbenchUserActivityTimer(TIMEOUT_INACTIVITY_MILLIS);
+						activityMonitor = new WorkbenchUserActivityMonitor();
 					}
 
-					activityContextManager = new ActivityContextManager(activityTimer);
+					activityContextManager = new ActivityContextManager(TIMEOUT_INACTIVITY_MILLIS, activityMonitor);
 					activityContextManager.start();
 				} catch (Exception e) {
 					MylarStatusHandler.fail(e, "Mylar Monitor start failed", false);
@@ -159,6 +141,9 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 				if (getWorkbench() != null && !getWorkbench().isClosing()) {
 					getWorkbench().removeWindowListener(WINDOW_LISTENER);
 					getWorkbench().getActiveWorkbenchWindow().getShell().removeShellListener(shellLifecycleListener);
+					if (launchingWorkbenchWindow != null) {
+						removeListenersFromWindow(launchingWorkbenchWindow);
+					}	
 				}
 			}
 		} catch (Exception e) {
@@ -169,11 +154,6 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
 	public ShellLifecycleListener getShellLifecycleListener() {
 		return shellLifecycleListener;
-	}
-
-	public void setInactivityTimeout(int millis) {
-		inactivityTimeout = millis;
-		activityContextManager.setTimeoutMillis(millis);
 	}
 
 	/**
@@ -308,8 +288,8 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 			try {
 				if (element.getAttribute(ELEMENT_CLASS) != null) {
 					Object activityTimer = element.createExecutableExtension(ELEMENT_CLASS);
-					if (activityTimer instanceof AbstractUserActivityTimer) {
-						osActivityTimer = (AbstractUserActivityTimer) activityTimer;
+					if (activityTimer instanceof AbstractUserActivityMonitor) {
+						osActivityTimer = (AbstractUserActivityMonitor) activityTimer;
 					}
 				}
 			} catch (CoreException throwable) {
@@ -320,5 +300,35 @@ public class MylarMonitorUiPlugin extends AbstractUIPlugin {
 
 	public ActivityContextManager getActivityContextManager() {
 		return activityContextManager;
+	}
+	
+	private void removeListenersFromWindow(IWorkbenchWindow window) {
+		for (IPageListener listener : pageListeners) {
+			window.removePageListener(listener);
+		}
+		for (IPartListener listener : partListeners) {
+			window.getPartService().removePartListener(listener);
+		}
+		for (IPerspectiveListener listener : perspectiveListeners) {
+			window.removePerspectiveListener(listener);
+		}
+		for (ISelectionListener listener : postSelectionListeners) {
+			window.getSelectionService().removePostSelectionListener(listener);
+		}
+	}
+
+	private void addListenersToWindow(IWorkbenchWindow window) {
+		for (IPageListener listener : pageListeners) {
+			window.addPageListener(listener);
+		}
+		for (IPartListener listener : partListeners) {
+			window.getPartService().addPartListener(listener);
+		}
+		for (IPerspectiveListener listener : perspectiveListeners) {
+			window.addPerspectiveListener(listener);
+		}
+		for (ISelectionListener listener : postSelectionListeners) {
+			window.getSelectionService().addPostSelectionListener(listener);
+		}
 	}
 }
