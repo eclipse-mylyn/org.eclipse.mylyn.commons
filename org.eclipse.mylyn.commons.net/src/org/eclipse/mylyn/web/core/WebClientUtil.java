@@ -20,8 +20,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.eclipse.core.net.proxy.IProxyData;
-import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.update.internal.core.UpdateCore;
 
 /**
  * @author Mik Kersten
@@ -192,27 +191,16 @@ public class WebClientUtil {
 		}
 		return Proxy.NO_PROXY;
 	}
-
-	/**
-	 * utility method, proxy should be obtained via TaskRepository.getProxy() *
-	 * 
-	 * @return proxy as defined in platform proxy settings property page, Proxy.NO_PROXY otherwise
-	 */
+	
 	public static Proxy getPlatformProxy() {
 		Proxy proxy = Proxy.NO_PROXY;
-		IProxyService service = WebCorePlugin.getProxyService();
-		if (service != null && service.isProxiesEnabled()) {
-			IProxyData data = service.getProxyData(IProxyData.HTTP_PROXY_TYPE);
-			if (data.getHost() != null) {
-				String proxyHost = data.getHost();
-				int proxyPort = data.getPort();
-				// Change the IProxyData default port to the Java default port
-				if (proxyPort == -1)
-					proxyPort = 0;
+		if (UpdateCore.getPlugin() != null
+				&& UpdateCore.getPlugin().getPluginPreferences().getBoolean(UpdateCore.HTTP_PROXY_ENABLE)) {
+			String proxyHost = UpdateCore.getPlugin().getPluginPreferences().getString(UpdateCore.HTTP_PROXY_HOST);
+			int proxyPort = UpdateCore.getPlugin().getPluginPreferences().getInt(UpdateCore.HTTP_PROXY_PORT);
 
-				InetSocketAddress sockAddr = new InetSocketAddress(proxyHost, proxyPort);
-				proxy = new Proxy(Type.HTTP, sockAddr);
-			}
+			InetSocketAddress sockAddr = new InetSocketAddress(proxyHost, proxyPort);
+			proxy = new Proxy(Type.HTTP, sockAddr);
 		}
 		return proxy;
 	}
