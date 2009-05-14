@@ -14,20 +14,14 @@ package org.eclipse.mylyn.discovery.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.mylyn.discovery.tests.core.ConnectorDiscoveryTest;
-import org.eclipse.mylyn.discovery.tests.core.DirectoryParserTest;
-import org.eclipse.mylyn.discovery.tests.core.RemoteBundleDiscoveryStrategyTest;
-
 /**
  * @author Steffen Pingel
  */
 public class AllDiscoveryTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for org.eclipse.mylyn.discovery");
-		suite.addTestSuite(ConnectorDiscoveryTest.class);
-		suite.addTestSuite(DirectoryParserTest.class);
-		suite.addTestSuite(RemoteBundleDiscoveryStrategyTest.class);
+		TestSuite suite = new TestSuite("Tests for org.eclipse.mylyn.discovery");
+		// intentionally empty for Eclipse 3.3
 		return suite;
 	}
 
