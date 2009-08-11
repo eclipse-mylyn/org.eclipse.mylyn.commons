@@ -129,7 +129,7 @@ public class CommonImages {
 	public static final ImageDescriptor BANNER_IMPORT = create(T_WIZBAN, "banner-import.gif"); //$NON-NLS-1$
 
 	/**
-	 * @since 3.2.1
+	 * @since 3.2.2
 	 */
 	public static final ImageDescriptor BANNER_EXPORT = create(T_WIZBAN, "banner-export.gif"); //$NON-NLS-1$
 
