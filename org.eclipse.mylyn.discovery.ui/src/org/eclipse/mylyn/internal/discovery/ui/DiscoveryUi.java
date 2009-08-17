@@ -33,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 /**
  * @author David Green
  */
+@SuppressWarnings("restriction")
 public abstract class DiscoveryUi {
 
 	public static final String ID_PLUGIN = "org.eclipse.mylyn.discovery.ui"; //$NON-NLS-1$
