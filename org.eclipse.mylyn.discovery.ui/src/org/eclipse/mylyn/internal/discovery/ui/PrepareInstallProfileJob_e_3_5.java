@@ -8,7 +8,7 @@
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
-package org.eclipse.mylyn.internal.discovery.ui.wizards;
+package org.eclipse.mylyn.internal.discovery.ui;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -38,16 +38,23 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
+import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.PreselectedIUInstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mylyn.internal.discovery.core.model.ConnectorDescriptor;
-import org.eclipse.mylyn.internal.discovery.ui.DiscoveryUi;
 import org.eclipse.mylyn.internal.discovery.ui.util.DiscoveryUiUtil;
+import org.eclipse.mylyn.internal.discovery.ui.wizards.Messages;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * A job that configures a p2 {@link #getInstallAction() install action} for installing one or more
@@ -58,7 +65,7 @@ import org.eclipse.swt.widgets.Display;
  * @author David Green
  */
 @SuppressWarnings("restriction")
-public class PrepareInstallProfileJob implements IRunnableWithProgress {
+class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 
 	private static final String P2_FEATURE_GROUP_SUFFIX = ".feature.group"; //$NON-NLS-1$
 
@@ -72,7 +79,7 @@ public class PrepareInstallProfileJob implements IRunnableWithProgress {
 
 	private InstallAction installAction;
 
-	public PrepareInstallProfileJob(List<ConnectorDescriptor> installableConnectors) {
+	public PrepareInstallProfileJob_e_3_5(List<ConnectorDescriptor> installableConnectors) {
 		if (installableConnectors == null || installableConnectors.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
@@ -85,10 +92,29 @@ public class PrepareInstallProfileJob implements IRunnableWithProgress {
 			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
+			doInstall();
 		} catch (OperationCanceledException e) {
 			throw new InterruptedException();
 		} catch (Exception e) {
 			throw new InvocationTargetException(e);
+		}
+	}
+
+	private void doInstall() {
+		if (getPlannerResolutionOperation() != null && getPlannerResolutionOperation().getProvisioningPlan() != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(Policy.getDefault(),
+							getProfileId(), getIUs(), getPlannerResolutionOperation(),
+							new QueryableMetadataRepositoryManager(Policy.getDefault().getQueryContext(), false));
+					WizardDialog dialog = new ProvisioningWizardDialog(DiscoveryUiUtil.getShell(), wizard);
+					dialog.create();
+					PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(),
+							IProvHelpContextIds.INSTALL_WIZARD);
+
+					dialog.open();
+				}
+			});
 		}
 	}
 
