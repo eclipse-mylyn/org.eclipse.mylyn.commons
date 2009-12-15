@@ -28,16 +28,16 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.MatchQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProvHelpContextIds;
 import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
@@ -65,7 +65,7 @@ import org.eclipse.ui.PlatformUI;
  * @author David Green
  */
 @SuppressWarnings("restriction")
-class PrepareInstallProfileJob implements IRunnableWithProgress {
+class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 
 	private static final String P2_FEATURE_GROUP_SUFFIX = ".feature.group"; //$NON-NLS-1$
 
@@ -79,7 +79,7 @@ class PrepareInstallProfileJob implements IRunnableWithProgress {
 
 	private InstallAction installAction;
 
-	public PrepareInstallProfileJob(List<ConnectorDescriptor> installableConnectors) {
+	public PrepareInstallProfileJob_e_3_5(List<ConnectorDescriptor> installableConnectors) {
 		if (installableConnectors == null || installableConnectors.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
