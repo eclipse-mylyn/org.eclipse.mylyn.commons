@@ -77,8 +77,6 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 
 	private IInstallableUnit[] ius;
 
-	private InstallAction installAction;
-
 	public PrepareInstallProfileJob_e_3_5(List<ConnectorDescriptor> installableConnectors) {
 		if (installableConnectors == null || installableConnectors.isEmpty()) {
 			throw new IllegalArgumentException();
@@ -176,7 +174,7 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 					for (ConnectorDescriptor descriptor : installableConnectors) {
 						try {
 							if (repositoryUrl.equals(new URL(descriptor.getSiteUrl()))) {
-								installableUnitIdsThisRepository.add(descriptor.getId());
+								installableUnitIdsThisRepository.addAll(descriptor.getInstallableUnits());
 							}
 						} catch (MalformedURLException e) {
 							// will never happen, ignore
@@ -244,65 +242,7 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 				}
 			}
 
-			// Verify that we found what we were looking for: it's possible that we have connector descriptors
-			// that are no longer available on their respective sites.  In that case we must inform the user.
-			// (Unfortunately this is the earliest point at which we can know) 
-			if (installableUnits.size() < installableConnectors.size()) {
-				// at least one selected connector could not be found in a repository
-				Set<String> foundIds = new HashSet<String>();
-				for (IInstallableUnit unit : installableUnits) {
-					String id = unit.getId();
-					if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-						id = id.substring(0, id.indexOf(P2_FEATURE_GROUP_SUFFIX));
-					}
-					foundIds.add(id);
-				}
-
-				final String notFound;
-				{
-					String temp = ""; //$NON-NLS-1$
-					for (ConnectorDescriptor descriptor : installableConnectors) {
-						if (!foundIds.contains(descriptor.getId())) {
-							if (temp.length() > 0) {
-								temp += Messages.InstallConnectorsJob_commaSeparator;
-							}
-							temp += descriptor.getName();
-						}
-					}
-					notFound = temp;
-				}
-				boolean proceed = false;
-				if (!installableUnits.isEmpty()) {
-					// instead of aborting here we ask the user if they wish to proceed anyways
-					final boolean[] okayToProceed = new boolean[1];
-					Display.getDefault().syncExec(new Runnable() {
-						public void run() {
-							okayToProceed[0] = MessageDialog.openQuestion(DiscoveryUiUtil.getShell(),
-									Messages.InstallConnectorsJob_questionProceed, NLS.bind(
-											Messages.InstallConnectorsJob_questionProceed_long,
-											new Object[] { notFound }));
-						}
-					});
-					proceed = okayToProceed[0];
-				}
-				if (!proceed) {
-					String notFoundDescription = ""; //$NON-NLS-1$
-					for (ConnectorDescriptor descriptor : installableConnectors) {
-						if (!foundIds.contains(descriptor.getId())) {
-							if (notFoundDescription.length() > 0) {
-								notFoundDescription += Messages.InstallConnectorsJob_commaSeparator;
-							}
-							notFoundDescription += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail,
-									new Object[] { descriptor.getName(), descriptor.getId(), descriptor.getSiteUrl() });
-						}
-					}
-					throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(
-							Messages.InstallConnectorsJob_connectorsNotAvailable, notFoundDescription), null));
-				}
-			} else if (installableUnits.size() > installableConnectors.size()) {
-				// should never ever happen
-				throw new IllegalStateException();
-			}
+			checkForUnavailable(installableUnits);
 
 			MultiStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, Messages.PrepareInstallProfileJob_ok, null);
 			ius = installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
@@ -339,6 +279,68 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 		}
 	}
 
+	/**
+	 * Verifies that we found what we were looking for: it's possible that we have connector descriptors that are no
+	 * longer available on their respective sites. In that case we must inform the user. Unfortunately this is the
+	 * earliest point at which we can know.
+	 */
+	private void checkForUnavailable(final List<IInstallableUnit> installableUnits) throws CoreException {
+		// at least one selected connector could not be found in a repository
+		Set<String> foundIds = new HashSet<String>();
+		for (IInstallableUnit unit : installableUnits) {
+			String id = unit.getId();
+			if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
+				id = id.substring(0, id.indexOf(P2_FEATURE_GROUP_SUFFIX));
+			}
+			foundIds.add(id);
+		}
+
+		String message = ""; //$NON-NLS-1$
+		String detailedMessage = ""; //$NON-NLS-1$
+		for (ConnectorDescriptor descriptor : installableConnectors) {
+			StringBuilder unavailableIds = null;
+			for (String id : descriptor.getInstallableUnits()) {
+				if (!foundIds.contains(id)) {
+					if (unavailableIds == null) {
+						unavailableIds = new StringBuilder();
+					} else {
+						unavailableIds.append(Messages.InstallConnectorsJob_commaSeparator);
+					}
+					unavailableIds.append(id);
+				}
+			}
+			if (unavailableIds != null) {
+				if (message.length() > 0) {
+					message += Messages.InstallConnectorsJob_commaSeparator;
+				}
+				message += descriptor.getName();
+
+				if (detailedMessage.length() > 0) {
+					detailedMessage += Messages.InstallConnectorsJob_commaSeparator;
+				}
+				detailedMessage += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail, new Object[] {
+						descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl() });
+			}
+		}
+
+		if (message.length() > 0) {
+			// instead of aborting here we ask the user if they wish to proceed anyways
+			final boolean[] okayToProceed = new boolean[1];
+			final String finalMessage = message;
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					okayToProceed[0] = MessageDialog.openQuestion(DiscoveryUiUtil.getShell(),
+							Messages.InstallConnectorsJob_questionProceed, NLS.bind(
+									Messages.InstallConnectorsJob_questionProceed_long, new Object[] { finalMessage }));
+				}
+			});
+			if (!okayToProceed[0]) {
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(
+						Messages.InstallConnectorsJob_connectorsNotAvailable, detailedMessage), null));
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private boolean addAll(final List<IInstallableUnit> installableUnits, Collector collector) {
 		return installableUnits.addAll(collector.toCollection());
@@ -369,7 +371,4 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 		return ius;
 	}
 
-	public InstallAction getInstallAction() {
-		return installAction;
-	}
 }
