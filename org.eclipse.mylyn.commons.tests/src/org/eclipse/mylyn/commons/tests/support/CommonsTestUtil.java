@@ -119,4 +119,17 @@ public class CommonsTestUtil {
 		}
 	}
 
+	public static void deleteFolderRecursively(File path) {
+		File[] files = path.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					deleteFolderRecursively(file);
+				} else {
+					file.delete();
+				}
+			}
+		}
+	}
+
 }
