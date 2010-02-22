@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2010 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,7 +56,7 @@ public abstract class DiscoveryUi {
 				}
 			}
 			if (runner == null) {
-				runner = new PrepareInstallProfileJob(descriptors);
+				runner = new PrepareInstallProfileJob_e_3_5(descriptors);
 			}
 			context.run(true, true, runner);
 		} catch (InvocationTargetException e) {
