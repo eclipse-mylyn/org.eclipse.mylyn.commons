@@ -174,7 +174,7 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 					for (ConnectorDescriptor descriptor : installableConnectors) {
 						try {
 							if (repositoryUrl.equals(new URL(descriptor.getSiteUrl()))) {
-								installableUnitIdsThisRepository.addAll(descriptor.getInstallableUnits());
+								installableUnitIdsThisRepository.addAll(getFeatureIds(descriptor));
 							}
 						} catch (MalformedURLException e) {
 							// will never happen, ignore
@@ -288,18 +288,14 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 		// at least one selected connector could not be found in a repository
 		Set<String> foundIds = new HashSet<String>();
 		for (IInstallableUnit unit : installableUnits) {
-			String id = unit.getId();
-			if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-				id = id.substring(0, id.indexOf(P2_FEATURE_GROUP_SUFFIX));
-			}
-			foundIds.add(id);
+			foundIds.add(unit.getId());
 		}
 
 		String message = ""; //$NON-NLS-1$
 		String detailedMessage = ""; //$NON-NLS-1$
 		for (ConnectorDescriptor descriptor : installableConnectors) {
 			StringBuilder unavailableIds = null;
-			for (String id : descriptor.getInstallableUnits()) {
+			for (String id : getFeatureIds(descriptor)) {
 				if (!foundIds.contains(id)) {
 					if (unavailableIds == null) {
 						unavailableIds = new StringBuilder();
@@ -369,6 +365,17 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 
 	public IInstallableUnit[] getIUs() {
 		return ius;
+	}
+
+	private Set<String> getFeatureIds(ConnectorDescriptor descriptor) {
+		Set<String> featureIds = new HashSet<String>();
+		for (String id : descriptor.getInstallableUnits()) {
+			if (!id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
+				id += P2_FEATURE_GROUP_SUFFIX;
+			}
+			featureIds.add(id);
+		}
+		return featureIds;
 	}
 
 }
