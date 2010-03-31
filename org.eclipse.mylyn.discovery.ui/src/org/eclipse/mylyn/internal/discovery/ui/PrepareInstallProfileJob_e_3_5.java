@@ -211,8 +211,7 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 						private boolean isQualifyingFeature(final Set<String> installableUnitIdsThisRepository,
 								String id) {
 							return id.endsWith(P2_FEATURE_GROUP_SUFFIX)
-									&& installableUnitIdsThisRepository.contains(id.substring(0,
-											id.indexOf(P2_FEATURE_GROUP_SUFFIX)));
+									&& installableUnitIdsThisRepository.contains(id);
 						}
 					};
 					repository.query(query, collector, new SubProgressMonitor(monitor, unit));
