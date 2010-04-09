@@ -17,17 +17,22 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IBundleGroup;
+import org.eclipse.core.runtime.IBundleGroupProvider;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.Version;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -47,7 +52,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResoluti
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mylyn.internal.discovery.core.model.ConnectorDescriptor;
 import org.eclipse.mylyn.internal.discovery.ui.util.DiscoveryUiUtil;
@@ -65,7 +69,7 @@ import org.eclipse.ui.PlatformUI;
  * @author David Green
  */
 @SuppressWarnings("restriction")
-class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
+class PrepareInstallProfileJob_e_3_5 extends AbstractInstallJob {
 
 	private static final String P2_FEATURE_GROUP_SUFFIX = ".feature.group"; //$NON-NLS-1$
 
@@ -78,13 +82,16 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 	private IInstallableUnit[] ius;
 
 	public PrepareInstallProfileJob_e_3_5(List<ConnectorDescriptor> installableConnectors) {
-		if (installableConnectors == null || installableConnectors.isEmpty()) {
+		if (installableConnectors == null) {
 			throw new IllegalArgumentException();
 		}
 		this.installableConnectors = new ArrayList<ConnectorDescriptor>(installableConnectors);
 	}
 
 	public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		if (installableConnectors.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
 		try {
 			doRun(monitor);
 			if (monitor.isCanceled()) {
@@ -174,7 +181,7 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 					for (ConnectorDescriptor descriptor : installableConnectors) {
 						try {
 							if (repositoryUrl.equals(new URL(descriptor.getSiteUrl()))) {
-								installableUnitIdsThisRepository.addAll(getFeatureIds(descriptor));
+								installableUnitIdsThisRepository.addAll(descriptor.getInstallableUnits());
 							}
 						} catch (MalformedURLException e) {
 							// will never happen, ignore
@@ -294,7 +301,7 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 		String detailedMessage = ""; //$NON-NLS-1$
 		for (ConnectorDescriptor descriptor : installableConnectors) {
 			StringBuilder unavailableIds = null;
-			for (String id : getFeatureIds(descriptor)) {
+			for (String id : descriptor.getInstallableUnits()) {
 				if (!foundIds.contains(id)) {
 					if (unavailableIds == null) {
 						unavailableIds = new StringBuilder();
@@ -366,15 +373,59 @@ class PrepareInstallProfileJob_e_3_5 implements IRunnableWithProgress {
 		return ius;
 	}
 
-	private Set<String> getFeatureIds(ConnectorDescriptor descriptor) {
-		Set<String> featureIds = new HashSet<String>();
-		for (String id : descriptor.getInstallableUnits()) {
-			if (!id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-				id += P2_FEATURE_GROUP_SUFFIX;
-			}
-			featureIds.add(id);
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<String> getInstalledFeatures(IProgressMonitor monitor) {
+		Set<String> features = new HashSet<String>();
+		profileId = Policy.getDefault().getProfileChooser().getProfileId(null);
+		IProfile profile;
+		try {
+			profile = ProvisioningUtil.getProfile(profileId);
+		} catch (ProvisionException e) {
+			return getInstalledFeaturesFromPlatform(monitor);
 		}
-		return featureIds;
+		Query query = new MatchQuery() {
+			@Override
+			public boolean isMatch(Object object) {
+				if (!(object instanceof IInstallableUnit)) {
+					return false;
+				}
+				IInstallableUnit candidate = (IInstallableUnit) object;
+				if ("true".equalsIgnoreCase(candidate.getProperty("org.eclipse.equinox.p2.type.group"))) { //$NON-NLS-1$ //$NON-NLS-2$
+					String id = candidate.getId();
+					if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
+						IProvidedCapability[] providedCapabilities = candidate.getProvidedCapabilities();
+						if (providedCapabilities != null && providedCapabilities.length > 0) {
+							for (IProvidedCapability capability : providedCapabilities) {
+								if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace())) { //$NON-NLS-1$
+									return true;
+								}
+							}
+						}
+					}
+				}
+				return false;
+			}
+		};
+		Collector collector = new Collector();
+		profile.available(query, collector, monitor);
+		for (Iterator<IInstallableUnit> it = collector.iterator(); it.hasNext();) {
+			IInstallableUnit unit = it.next();
+			features.add(unit.getId());
+		}
+		return features;
+	}
+
+	private Set<String> getInstalledFeaturesFromPlatform(IProgressMonitor monitor) {
+		Set<String> installedFeatures = new HashSet<String>();
+		IBundleGroupProvider[] bundleGroupProviders = Platform.getBundleGroupProviders();
+		for (IBundleGroupProvider provider : bundleGroupProviders) {
+			IBundleGroup[] bundleGroups = provider.getBundleGroups();
+			for (IBundleGroup group : bundleGroups) {
+				installedFeatures.add(group.getIdentifier());
+			}
+		}
+		return installedFeatures;
 	}
 
 }

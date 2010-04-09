@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IBundleGroup;
-import org.eclipse.core.runtime.IBundleGroupProvider;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -716,6 +714,15 @@ public class DiscoveryViewer {
 		container.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				refreshJob.cancel();
+				if (disposables != null) {
+					for (Resource resource : disposables) {
+						resource.dispose();
+					}
+					clearDisposables();
+				}
+				if (discovery != null) {
+					discovery.dispose();
+				}
 			}
 		});
 		GridLayout layout = new GridLayout(1, false);
@@ -1036,16 +1043,6 @@ public class DiscoveryViewer {
 			}
 		}
 		selectionProvider.setSelection(StructuredSelection.EMPTY);
-	}
-
-	public void dispose() {
-		for (Resource resource : disposables) {
-			resource.dispose();
-		}
-		clearDisposables();
-		if (discovery != null) {
-			discovery.dispose();
-		}
 	}
 
 	private boolean filterMatches(String text) {
@@ -1537,18 +1534,7 @@ public class DiscoveryViewer {
 	}
 
 	protected Set<String> getInstalledFeatures(IProgressMonitor monitor) throws InterruptedException {
-		Set<String> installedFeatures = new HashSet<String>();
-		IBundleGroupProvider[] bundleGroupProviders = Platform.getBundleGroupProviders();
-		for (IBundleGroupProvider provider : bundleGroupProviders) {
-			if (monitor.isCanceled()) {
-				throw new InterruptedException();
-			}
-			IBundleGroup[] bundleGroups = provider.getBundleGroups();
-			for (IBundleGroup group : bundleGroups) {
-				installedFeatures.add(group.getIdentifier());
-			}
-		}
-		return installedFeatures;
+		return DiscoveryUi.createInstallJob().getInstalledFeatures(monitor);
 	}
 
 }
