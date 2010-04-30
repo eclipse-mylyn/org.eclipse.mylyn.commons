@@ -384,34 +384,36 @@ class PrepareInstallProfileJob_e_3_5 extends AbstractInstallJob {
 		} catch (ProvisionException e) {
 			return getInstalledFeaturesFromPlatform(monitor);
 		}
-		Query query = new MatchQuery() {
-			@Override
-			public boolean isMatch(Object object) {
-				if (!(object instanceof IInstallableUnit)) {
-					return false;
-				}
-				IInstallableUnit candidate = (IInstallableUnit) object;
-				if ("true".equalsIgnoreCase(candidate.getProperty("org.eclipse.equinox.p2.type.group"))) { //$NON-NLS-1$ //$NON-NLS-2$
-					String id = candidate.getId();
-					if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-						IProvidedCapability[] providedCapabilities = candidate.getProvidedCapabilities();
-						if (providedCapabilities != null && providedCapabilities.length > 0) {
-							for (IProvidedCapability capability : providedCapabilities) {
-								if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace())) { //$NON-NLS-1$
-									return true;
+		if (profile != null) {
+			Query query = new MatchQuery() {
+				@Override
+				public boolean isMatch(Object object) {
+					if (!(object instanceof IInstallableUnit)) {
+						return false;
+					}
+					IInstallableUnit candidate = (IInstallableUnit) object;
+					if ("true".equalsIgnoreCase(candidate.getProperty("org.eclipse.equinox.p2.type.group"))) { //$NON-NLS-1$ //$NON-NLS-2$
+						String id = candidate.getId();
+						if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
+							IProvidedCapability[] providedCapabilities = candidate.getProvidedCapabilities();
+							if (providedCapabilities != null && providedCapabilities.length > 0) {
+								for (IProvidedCapability capability : providedCapabilities) {
+									if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace())) { //$NON-NLS-1$
+										return true;
+									}
 								}
 							}
 						}
 					}
+					return false;
 				}
-				return false;
+			};
+			Collector collector = new Collector();
+			profile.available(query, collector, monitor);
+			for (Iterator<IInstallableUnit> it = collector.iterator(); it.hasNext();) {
+				IInstallableUnit unit = it.next();
+				features.add(unit.getId());
 			}
-		};
-		Collector collector = new Collector();
-		profile.available(query, collector, monitor);
-		for (Iterator<IInstallableUnit> it = collector.iterator(); it.hasNext();) {
-			IInstallableUnit unit = it.next();
-			features.add(unit.getId());
 		}
 		return features;
 	}
