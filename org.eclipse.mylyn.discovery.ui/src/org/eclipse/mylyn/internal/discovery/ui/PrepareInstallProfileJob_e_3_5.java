@@ -234,7 +234,7 @@ class PrepareInstallProfileJob_e_3_5 extends AbstractInstallJob {
 				Map<String, Version> symbolicNameToVersion = new HashMap<String, Version>();
 				for (IInstallableUnit unit : installableUnits) {
 					Version version = symbolicNameToVersion.get(unit.getId());
-					if (version == null || version.compareTo(unit.getVersion()) == -1) {
+					if (version == null || version.compareTo(unit.getVersion()) < 0) {
 						symbolicNameToVersion.put(unit.getId(), unit.getVersion());
 					}
 				}
