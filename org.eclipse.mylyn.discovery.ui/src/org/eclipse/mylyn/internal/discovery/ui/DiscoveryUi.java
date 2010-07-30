@@ -61,7 +61,7 @@ public abstract class DiscoveryUi {
 			}
 		}
 		if (runner == null) {
-			runner = new PrepareInstallProfileJob(descriptors);
+			runner = new PrepareInstallProfileJob_e_3_5(descriptors);
 		}
 		return runner;
 	}
