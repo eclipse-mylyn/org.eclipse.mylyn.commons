@@ -122,6 +122,7 @@ public class CheckActivityJobTest extends TestCase {
 	}
 
 	public void testResumeFromSleepTimeoutEventDiscarded() throws Exception {
+		// record one tick
 		callback.lastEventTime = System.currentTimeMillis();
 		job.setInactivityTimeout(20);
 		job.setTick(20);
@@ -130,19 +131,23 @@ public class CheckActivityJobTest extends TestCase {
 		job.run();
 		assertTrue(job.isActive());
 		assertEquals(1, callback.eventCount);
-		Thread.sleep(61);
 		// resume from sleep past timeout
+		callback.activeTime = 0;
+		Thread.sleep(61);
 		callback.lastEventTime = System.currentTimeMillis();
 		job.run();
 		assertFalse(callback.inactive);
 		assertTrue(job.isActive());
+		assertEquals(0, callback.activeTime);
+		// record another tick
 		Thread.sleep(6);
 		job.run();
+		long slept = System.currentTimeMillis() - callback.lastEventTime;
 		assertTrue(job.isActive());
 		// check if time sleeping was logged
-		assertTrue("expected less than 5 < activeTime < 10, got " + callback.activeTime, callback.activeTime > 5
-				&& callback.activeTime < 10);
 		assertEquals(2, callback.eventCount);
+		assertTrue("expected less than 5 < activeTime < 40, got " + callback.activeTime + " (slept " + slept + " ms)",
+				callback.activeTime > 5 && callback.activeTime < 40);
 	}
 
 	private class TestableCheckActivityJob extends CheckActivityJob {
