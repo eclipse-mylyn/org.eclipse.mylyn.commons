@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.Proxy.Type;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -590,7 +590,8 @@ public class WebUtilTest extends TestCase {
 	}
 
 	public void testGetTitleFromUrl() throws Exception {
-		assertEquals("Eclipse.org home", WebUtil.getTitleFromUrl(new WebLocation("http://eclipse.org"), null));
+		assertEquals("Eclipse - The Eclipse Foundation open source community website.",
+				WebUtil.getTitleFromUrl(new WebLocation("http://eclipse.org"), null));
 		// disabled: fails in environments where the DNS resolver redirects for unknown hosts  
 		//		try {
 //			String title = WebUtil.getTitleFromUrl(new WebLocation("http://invalidurl"), null);
