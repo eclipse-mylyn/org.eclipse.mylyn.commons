@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.eclipse.mylyn.commons</groupId>
   <artifactId>org.eclipse.mylyn.commons.notifications</artifactId>
-  <version>0.8.0.v20110608-1400</version>
+  <version>0.8.1.v20110827-0100</version>
   <packaging>eclipse-plugin</packaging>
   <build>
     <plugins>
