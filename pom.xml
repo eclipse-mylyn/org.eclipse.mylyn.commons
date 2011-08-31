@@ -33,14 +33,4 @@
     <module>org.eclipse.mylyn.monitor.tests</module>
     <module>org.eclipse.mylyn.monitor.ui</module>
   </modules>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.tycho</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>0.10.0</version>
-        <extensions>true</extensions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
