@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.eclipse.mylyn.commons</groupId>
   <artifactId>org.eclipse.mylyn</artifactId>
-  <version>3.6.4.v20111116-0100</version>
+  <version>3.6.5.v20120206-0100</version>
   <packaging>eclipse-plugin</packaging>
   <build>
     <plugins>
