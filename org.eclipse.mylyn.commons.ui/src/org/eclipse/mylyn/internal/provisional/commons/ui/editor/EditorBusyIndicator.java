@@ -24,7 +24,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @author Shawn Minto
  * @author Steffen Pingel
- * @deprecated use {@link org.eclipse.mylyn.commons.ui.workbench.EditorBusyIndicator} instead
+ * @deprecated use {@link org.eclipse.mylyn.commons.workbench.BusyAnimator} instead
  */
 @Deprecated
 public class EditorBusyIndicator {
