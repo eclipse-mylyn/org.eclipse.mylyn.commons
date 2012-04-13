@@ -38,7 +38,9 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 /**
  * @author Rob Elves
  * @author Mik Kersten
+ * @deprecated use classes in the <code>org.eclipse.mylyn.commons.notifications.ui</code> bundle instead
  */
+@Deprecated
 public class NotificationPopup extends AbstractNotificationPopup {
 
 	private static final int NUM_NOTIFICATIONS_TO_DISPLAY = 4;

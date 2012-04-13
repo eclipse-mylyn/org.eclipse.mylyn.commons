@@ -56,7 +56,9 @@ import org.eclipse.ui.dialogs.FilteredTree;
 /**
  * @author Steffen Pingel
  * @author Torkild Ulvøy Resheim
+ * @deprecated use classes in the <code>org.eclipse.mylyn.commons.notifications.core</code> bundle instead
  */
+@Deprecated
 public class NotificationsPreferencesPage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	/**
