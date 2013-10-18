@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.mylyn.commons.net" version="2">
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.binary.Base32">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.binary.Base32"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.binary.Base32InputStream">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.binary.Base32InputStream"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.binary.Base32OutputStream">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.binary.Base32OutputStream"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.binary.BaseNCodec">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.binary.BaseNCodec"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.binary.BaseNCodecInputStream">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.binary.BaseNCodecInputStream"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.binary.BaseNCodecOutputStream">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.binary.BaseNCodecOutputStream"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.AbstractCaverphone">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.AbstractCaverphone"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.Caverphone1">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.Caverphone1"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.Caverphone2">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.Caverphone2"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.ColognePhonetic">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.ColognePhonetic"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.BeiderMorseEncoder">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.BeiderMorseEncoder"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.Lang">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.Lang"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.Languages">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.Languages"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.NameType">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.NameType"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.PhoneticEngine">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.PhoneticEngine"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.Rule">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.Rule"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="META-INF/MANIFEST.MF" type="org.apache.commons.codec.language.bm.RuleType">
+        <filter comment="False positivies due to Apache Commons Codec 1.6 being part of baseline." id="305422471">
+            <message_arguments>
+                <message_argument value="org.apache.commons.codec.language.bm.RuleType"/>
+                <message_argument value="org.eclipse.mylyn.commons.net_3.10.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
