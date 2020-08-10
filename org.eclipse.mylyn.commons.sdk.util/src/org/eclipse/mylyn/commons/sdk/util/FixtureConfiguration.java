@@ -76,7 +76,8 @@ public class FixtureConfiguration {
 	}
 
 	public boolean isDefault() {
-		return properties != null && "1".equals(properties.get("default"));
+		return properties != null
+				&& ("1".equals(properties.get("default")) || "true".equals(properties.get("default")));
 	}
 
 }
