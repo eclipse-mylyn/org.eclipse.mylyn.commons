@@ -14,7 +14,7 @@
 <feature
       id="org.eclipse.mylyn.commons.notifications"
       label="%featureName"
-      version="1.17.2.qualifier"
+      version="1.17.3.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.mylyn.commons.core"
       license-feature="org.eclipse.license"
@@ -39,7 +39,7 @@
       <import plugin="com.sun.xml.bind" version="2.3.3" match="equivalent"/>
       <import plugin="javax.xml.stream" version="1.0.1" match="equivalent"/>
             
-      <import feature="org.eclipse.mylyn.commons" version="3.25.2" match="greaterOrEqual"/>      
+      <import feature="org.eclipse.mylyn.commons" version="3.25.3" match="greaterOrEqual"/>      
    </requires>
 
    <plugin
