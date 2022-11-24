@@ -1,0 +1,62 @@
+###############################################################################
+# Copyright (c) 2021 ArSysOp and others
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License 2.0 which is available at
+# https://www.eclipse.org/legal/epl-2.0/.
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#     Alexander Fedorov (ArSysOp) - initial API and implementation
+###############################################################################
+
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  pull_request_review_comment:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.9.1
+      with:
+       access_token: ${{ github.token }}
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Setup Maven
+      run: echo "MAVEN_OPTS='-Xmx2048m'" > ~/.mavenrc
+#    - name: Cache maven repo
+#      uses: actions/cache@v2
+#      env:
+#        cache-name: cache-maven-repo-3
+#      with:
+#        path: |
+#          ~/.m2/repository
+#          !~/.m2/repository/org/eclipse/birt
+#          !~/.m2/repository/.cache/tycho
+#        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.sha1') }}
+#        restore-keys: |
+#          ${{ runner.os }}-build-${{ env.cache-name }}-
+#          ${{ runner.os }}-build-
+#          ${{ runner.os }}-
+    - name: Build with Maven
+      run: mvn clean verify --no-transfer-progress -U -B -Psandbox.eclipse.org -Pstrict
+
+#    - name: Archive
+#      uses: actions/upload-artifact@v2
+#      with: 
+#        name: birt-site
+#        path: build/org.eclipse.birt.p2updatesite/target/org.eclipse.birt.p2updatesite*.zip
