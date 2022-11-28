@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="mylyn-commons-e4.5" sequenceNumber="9">
+<?pde version="3.8"?>
+<target name="mylyn-commons-e4.5" sequenceNumber="9">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
@@ -67,10 +68,6 @@
 <unit id="org.eclipse.osgi" version="3.10.102.v20160118-1700"/>
 <unit id="org.eclipse.sdk.ide" version="4.5.2.M20160212-1500"/>
 <repository location="https://download.eclipse.org/releases/mars"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.mylyn.context.core" version="0.0.0"/>
-<repository location="https://download.eclipse.org/mylyn/snapshots/3.9"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.license.feature.group" version="1.0.1.v20140414-1359"/>
