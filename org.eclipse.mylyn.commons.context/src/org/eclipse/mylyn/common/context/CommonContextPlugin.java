@@ -26,17 +26,17 @@ import org.osgi.framework.BundleContext;
 
 public class CommonContextPlugin implements BundleActivator {
 
-	private static final String ELEMENT_CLASS = "class"; //$NON-NLS-1$
-
-	private static final String ORG_ECLIPSE_MYLYN_COMMONS_CONTEXT_CONTEXT_CALL_BACK = "org.eclipse.mylyn.commons.context.ContextCallBack";
-
-	private static final String CONTEXT_CALL_BACK = "ContextCallBack";
-
 	public static final String ID_PLUGIN = "org.eclipse.mylyn.common.context"; //$NON-NLS-1$
+
+	private static final String ORG_ECLIPSE_MYLYN_COMMONS_CONTEXT_STARTUP = "org.eclipse.mylyn.commons.context.startup";
+
+	private static final String STARTUP = "startup";
+
+	private static final String ELEMENT_CLASS = "class"; //$NON-NLS-1$
 
 	private static CommonContextPlugin INSTANCE;
 
-	private IContextCallBack contextCallBack;
+	private IContextStarter contextCallBack;
 
 	public CommonContextPlugin() {
 		INSTANCE = this;
@@ -54,22 +54,21 @@ public class CommonContextPlugin implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 	}
 
-	private IContextCallBack getContextCallBack() {
+	private IContextStarter getContextCallBack() {
 		if (contextCallBack == null) {
 			IExtensionRegistry registry = Platform.getExtensionRegistry();
 
-			IExtensionPoint extensionPoint = registry
-					.getExtensionPoint(ORG_ECLIPSE_MYLYN_COMMONS_CONTEXT_CONTEXT_CALL_BACK);
+			IExtensionPoint extensionPoint = registry.getExtensionPoint(ORG_ECLIPSE_MYLYN_COMMONS_CONTEXT_STARTUP);
 			IExtension[] extensions = extensionPoint.getExtensions();
-			if (extensions.length > 0) {
+			if (extensions.length == 1) {
 				IConfigurationElement[] elements = extensions[0].getConfigurationElements();
 				for (IConfigurationElement element : elements) {
-					if (element.getName().compareTo(CONTEXT_CALL_BACK) == 0) {
+					if (element.getName().equals(STARTUP)) {
 						Object object;
 						try {
 							object = element.createExecutableExtension(ELEMENT_CLASS);
-							if (object instanceof IContextCallBack) {
-								contextCallBack = (IContextCallBack) object;
+							if (object instanceof IContextStarter) {
+								contextCallBack = (IContextStarter) object;
 								break;
 							}
 						} catch (CoreException e) {
@@ -77,6 +76,9 @@ public class CommonContextPlugin implements BundleActivator {
 						}
 					}
 				}
+			} else {
+				StatusHandler.log(new Status(IStatus.ERROR, ID_PLUGIN,
+						String.format("only exact one %s expected", ORG_ECLIPSE_MYLYN_COMMONS_CONTEXT_STARTUP)));
 			}
 
 		}

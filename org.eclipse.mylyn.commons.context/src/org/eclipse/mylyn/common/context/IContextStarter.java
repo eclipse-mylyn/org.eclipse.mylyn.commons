@@ -13,7 +13,7 @@ package org.eclipse.mylyn.common.context;
 
 import org.eclipse.mylyn.monitor.core.InteractionEvent;
 
-public interface IContextCallBack {
+public interface IContextStarter {
 
 	public void processActivityMetaContextEvent(InteractionEvent event);
 

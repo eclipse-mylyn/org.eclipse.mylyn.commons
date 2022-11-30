@@ -3,10 +3,10 @@
 <schema targetNamespace="org.eclipse.mylyn.commons.context" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.eclipse.mylyn.commons.context" id="ContextCallBackID" name="ContextCallBack"/>
+         <meta.schema plugin="org.eclipse.mylyn.commons.context" id="startup" name="Common Context Startup"/>
       </appinfo>
       <documentation>
-         [Enter description of this extension point.]
+         The context startup extension provides a hook for lazy initializion of extensions on first activation of the Commons Context Plugin.
       </documentation>
    </annotation>
 
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence>
-            <element ref="ContextCallBack"/>
+            <element ref="startup"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="ContextCallBack">
+   <element name="startup">
       <complexType>
          <attribute name="class" type="string" use="required">
             <annotation>
