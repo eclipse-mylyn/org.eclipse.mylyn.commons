@@ -54,7 +54,8 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 	}
 
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		throw new UnsupportedOperationException("should be handeled in AbstractContextInteractionMonitor");
+		StatusHandler.log(new Status(IStatus.WARNING, MonitorUiPlugin.ID_PLUGIN,
+				"should be handeled in AbstractContextInteractionMonitor"));
 	}
 
 	protected abstract void handleWorkbenchPartSelection(IWorkbenchPart part, ISelection selection,
@@ -89,7 +90,8 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 	 * @since 3.1
 	 */
 	protected void handleNavigation(String partId, Object targetElement, String kind, boolean contributeToContext) {
-		throw new UnsupportedOperationException("should be handeled in AbstractContextInteractionMonitor");
+		StatusHandler.log(new Status(IStatus.WARNING, MonitorUiPlugin.ID_PLUGIN,
+				"should be handeled in AbstractContextInteractionMonitor"));
 	}
 
 	/**
@@ -98,7 +100,8 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 	 * @since 3.1
 	 */
 	protected void handleElementEdit(String partId, Object selectedElement, boolean contributeToContext) {
-		throw new UnsupportedOperationException("should be handeled in AbstractContextInteractionMonitor");
+		StatusHandler.log(new Status(IStatus.WARNING, MonitorUiPlugin.ID_PLUGIN,
+				"should be handeled in AbstractContextInteractionMonitor"));
 	}
 
 	/**
@@ -108,7 +111,9 @@ public abstract class AbstractUserInteractionMonitor implements ISelectionListen
 	 */
 	protected InteractionEvent handleElementSelection(String partId, Object selectedElement,
 			boolean contributeToContext) {
-		throw new UnsupportedOperationException("should be handeled in AbstractContextInteractionMonitor");
+		StatusHandler.log(new Status(IStatus.WARNING, MonitorUiPlugin.ID_PLUGIN,
+				"should be handeled in AbstractContextInteractionMonitor"));
+		return null;
 	}
 
 	public Kind getEventKind() {

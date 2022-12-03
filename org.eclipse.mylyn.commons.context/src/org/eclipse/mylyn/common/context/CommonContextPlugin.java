@@ -80,7 +80,22 @@ public class CommonContextPlugin implements BundleActivator {
 				StatusHandler.log(new Status(IStatus.ERROR, ID_PLUGIN,
 						String.format("only exact one %s expected", ORG_ECLIPSE_MYLYN_COMMONS_CONTEXT_STARTUP)));
 			}
+			if (contextCallBack == null) {
+				contextCallBack = new IContextStarter() {
 
+					@Override
+					public void processActivityMetaContextEvent(InteractionEvent event) {
+						// ignore
+
+					}
+
+					@Override
+					public String getActiveContextHandleIdentifier() {
+						// ignore
+						return null;
+					}
+				};
+			}
 		}
 		return contextCallBack;
 	}
