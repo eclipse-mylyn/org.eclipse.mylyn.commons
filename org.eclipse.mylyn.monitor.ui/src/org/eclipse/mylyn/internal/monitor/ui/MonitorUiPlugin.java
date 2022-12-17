@@ -361,14 +361,14 @@ public class MonitorUiPlugin extends AbstractUIPlugin {
 			}
 
 			// disabled, there is currently no need for this event
-//			String productId = InteractionContextManager.ACTIVITY_ORIGINID_WORKBENCH;
+//			String productId = CommonInteractionContextManager.ACTIVITY_ORIGINID_WORKBENCH;
 //			if (Platform.getProduct() != null) {
 //				productId = Platform.getProduct().getId();
 //			}
 //			ContextCorePlugin.getContextManager().processActivityMetaContextEvent(
 //					new InteractionEvent(InteractionEvent.Kind.ATTENTION,
 //							InteractionContextManager.ACTIVITY_STRUCTUREKIND_LIFECYCLE, productId,
-//							InteractionContextManager.ACTIVITY_ORIGINID_WORKBENCH, null,
+//							CommonInteractionContextManager.ACTIVITY_ORIGINID_WORKBENCH, null,
 //							InteractionContextManager.ACTIVITY_DELTA_STARTED, 1f));
 
 			MonitorUiExtensionPointReader.initExtensions(monitors);
